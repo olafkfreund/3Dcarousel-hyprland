@@ -1,37 +1,37 @@
-# 🎠 3D Carousel Hyprland Plugin
+# 3D Carousel Hyprland Plugin
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![NixOS](https://img.shields.io/badge/NixOS-compatible-blue.svg)](https://nixos.org/)
 [![Hyprland](https://img.shields.io/badge/Hyprland-0.50.0-green.svg)](https://hyprland.org/)
 
-**⚠️ WARNING: This is not ready for use yet, development in early stages.**
+**WARNING: This is not ready for use yet, development in early stages.**
 
-A revolutionary 3D workspace carousel plugin for Hyprland that transforms workspace navigation into an immersive, visually stunning experience. Navigate through your workspaces in a smooth 3D carousel with depth effects, transparency gradients, and fluid animations.
+A 3D workspace carousel plugin for Hyprland that provides a rotating view of your workspaces. Navigate between workspaces using a 3D carousel interface with smooth animations and visual effects.
 
 ![Demo GIF Placeholder](docs/demo.gif) <!-- TODO: Add actual demo -->
 
-## ✨ Features
+## Features
 
-### 🎯 Core Features
+### Core Features
 - **3D Carousel Navigation**: Workspaces arranged in a rotating 3D carousel
 - **Smooth Animations**: Fluid transitions with customizable duration and easing
 - **Visual Depth**: Transparency gradients and depth effects for immersion
 - **Workspace Previews**: Live workspace thumbnails rendered in real-time
 - **Intuitive Controls**: Keyboard shortcuts for seamless navigation
 
-### 🎨 Visual Effects
+### Visual Effects
 - **Transparency Gradients**: Distant workspaces fade for depth perception
 - **Highlight Selected**: Current workspace prominently displayed
 - **Smooth Rotation**: Physics-based carousel movement
 - **OpenGL Rendering**: High-performance 3D graphics with custom shaders
 
-### ⚙️ Customization
+### Customization
 - **Configurable Radius**: Adjust carousel size to your preference
 - **Spacing Control**: Fine-tune workspace positioning
 - **Animation Speed**: Customize transition timing
 - **Visual Settings**: Transparency levels and effects
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Hyprland 0.50.0+
@@ -73,7 +73,7 @@ ninja
 cp hypr-carousel.so ~/.local/share/hyprland/plugins/
 ```
 
-## 📖 Configuration
+## Configuration
 
 Add to your `hyprland.conf`:
 
@@ -101,7 +101,7 @@ plugin {
 }
 ```
 
-## 🎮 Usage
+## Usage
 
 ### Basic Controls
 - **`SUPER + TAB`**: Toggle carousel view
@@ -114,7 +114,7 @@ plugin {
 - **Click to Select**: Click on any workspace preview to switch
 - **Auto-hide**: Carousel automatically hides after selection
 
-## 🛠️ Development
+## Development
 
 ### Development Environment
 
@@ -189,7 +189,7 @@ just install        # Install to Hyprland
 - **AnimationEngine**: Smooth transitions and timing
 - **WorkspaceFrame**: Individual workspace data structure
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -237,7 +237,7 @@ nix develop .#debug
 valgrind --tool=memcheck hyprland
 ```
 
-## 📊 Performance
+## Performance
 
 ### Benchmarks
 - **Memory Usage**: ~5-10MB additional RAM
@@ -251,7 +251,7 @@ valgrind --tool=memcheck hyprland
 - **Frustum Culling**: Only renders visible workspaces
 - **Efficient Shaders**: Optimized fragment/vertex shaders
 
-## 🤝 Contributing
+## Contributing
 
 ### Getting Started
 1. Fork the repository
@@ -274,7 +274,7 @@ valgrind --tool=memcheck hyprland
 - RAII for resource management
 - Clear variable and function names
 
-## 📝 Changelog
+## Changelog
 
 ### [Unreleased]
 - Initial 3D carousel implementation
@@ -287,18 +287,18 @@ valgrind --tool=memcheck hyprland
 - Core carousel functionality
 - Basic animation system
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Hyprland](https://hyprland.org/) - The amazing wayland compositor
 - [OpenGL](https://www.opengl.org/) - Graphics rendering
 - [GLM](https://github.com/g-truc/glm) - Mathematics library
 - [NixOS](https://nixos.org/) - Reproducible development environment
 
-## 🔗 Links
+## Links
 
 - **Documentation**: [docs/](docs/)
 - **API Reference**: [docs/api.md](docs/api.md)
@@ -309,5 +309,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
-  <strong>Made with ❤️ for the Hyprland community</strong>
+  <strong>Made for the Hyprland community</strong>
 </p>
