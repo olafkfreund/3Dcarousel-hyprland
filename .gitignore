@@ -1,0 +1,31 @@
+# Build directories
+build/
+result/
+result-*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Compilation database
+compile_commands.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Nix build artifacts
+.direnv/
+
+# Plugin artifacts
+*.so
+hypr-carousel.so
+
+# Distribution
+dist/
+
+# Logs
+*.log
