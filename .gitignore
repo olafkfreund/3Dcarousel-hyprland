@@ -29,3 +29,7 @@ dist/
 
 # Logs
 *.log
+
+# Claude Code development files (private)
+CLAUDE.md
+CLAUDE-HYPRLAND-PLUGIN-DEVELOPMENT.md
