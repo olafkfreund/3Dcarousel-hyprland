@@ -12,6 +12,12 @@ find_package(PkgConfig REQUIRED)
 # Find dependencies using exact pattern from official plugins
 pkg_check_modules(deps REQUIRED IMPORTED_TARGET
     hyprland
+    # Hyprland sub-dependencies
+    hyprutils
+    hyprlang
+    hyprgraphics
+    aquamarine
+    # System dependencies
     libdrm
     libinput
     libudev

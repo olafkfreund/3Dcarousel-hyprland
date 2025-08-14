@@ -3,19 +3,54 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    
     # Pin to exact Hyprland 0.50.1 commit for ABI compatibility
     hyprland = {
       url = "github:hyprwm/Hyprland/4e242d086e20b32951fdc0ebcbfb4d41b5be8dcc";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    
+    # Hyprland dependencies - using specific versions
+    hyprutils = {
+      url = "github:hyprwm/hyprutils";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    hyprlang = {
+      url = "github:hyprwm/hyprlang";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    hyprcursor = {
+      url = "github:hyprwm/hyprcursor";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    hyprgraphics = {
+      url = "github:hyprwm/hyprgraphics";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    aquamarine = {
+      url = "github:hyprwm/aquamarine";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, hyprland, flake-utils }:
+  outputs = { self, nixpkgs, hyprland, hyprutils, hyprlang, hyprcursor, hyprgraphics, aquamarine, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         hyprlandPkgs = hyprland.packages.${system};
+        
+        # Hyprland dependency packages
+        hyprutils-pkg = hyprutils.packages.${system}.default;
+        hyprlang-pkg = hyprlang.packages.${system}.default;
+        hyprcursor-pkg = hyprcursor.packages.${system}.default;
+        hyprgraphics-pkg = hyprgraphics.packages.${system}.default;
+        aquamarine-pkg = aquamarine.packages.${system}.default;
       in
       {
         packages = {
@@ -32,7 +67,13 @@
             ];
 
             buildInputs = with pkgs; [
+              # Hyprland and its dependencies
               hyprlandPkgs.hyprland
+              hyprutils-pkg
+              hyprlang-pkg
+              hyprcursor-pkg
+              hyprgraphics-pkg
+              aquamarine-pkg
               
               # Math library for 3D calculations
               glm
@@ -48,6 +89,12 @@
               libinput
               pango
               cairo
+              
+              # Additional dependencies for hyprcursor/hyprgraphics
+              libzip
+              librsvg
+              libjpeg
+              libwebp
             ];
 
             configurePhase = ''
@@ -93,6 +140,11 @@
             
             # Hyprland development
             hyprlandPkgs.hyprland
+            hyprutils-pkg
+            hyprlang-pkg
+            hyprcursor-pkg
+            hyprgraphics-pkg
+            aquamarine-pkg
             
             # Math library for 3D calculations
             glm
@@ -109,6 +161,12 @@
             libinput
             pango
             cairo
+            
+            # Additional dependencies
+            libzip
+            librsvg
+            libjpeg
+            libwebp
             
             # Development tools
             gdb

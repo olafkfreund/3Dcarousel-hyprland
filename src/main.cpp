@@ -19,17 +19,17 @@ bool CarouselPlugin::initialize() {
     m_animationEngine = std::make_unique<AnimationEngine>();
     
     if (!m_renderer->initialize()) {
-        HyprlandAPI::addNotification(PHANDLE, "Failed to initialize renderer", CColor{1.0, 0.0, 0.0, 1.0}, 3000);
+        HyprlandAPI::addNotification(PHANDLE, "Failed to initialize renderer", Hyprgraphics::CColor{1.0, 0.0, 0.0, 1.0}, 3000);
         return false;
     }
     
     if (!m_workspaceManager->initialize()) {
-        HyprlandAPI::addNotification(PHANDLE, "Failed to initialize workspace manager", CColor{1.0, 0.0, 0.0, 1.0}, 3000);
+        HyprlandAPI::addNotification(PHANDLE, "Failed to initialize workspace manager", Hyprgraphics::CColor{1.0, 0.0, 0.0, 1.0}, 3000);
         return false;
     }
     
     if (!m_animationEngine->initialize()) {
-        HyprlandAPI::addNotification(PHANDLE, "Failed to initialize animation engine", CColor{1.0, 0.0, 0.0, 1.0}, 3000);
+        HyprlandAPI::addNotification(PHANDLE, "Failed to initialize animation engine", Hyprgraphics::CColor{1.0, 0.0, 0.0, 1.0}, 3000);
         return false;
     }
     
@@ -57,10 +57,10 @@ void CarouselPlugin::toggleCarousel() {
     if (m_active) {
         m_renderer->captureWorkspaces();
         m_animationEngine->startCarouselAnimation();
-        HyprlandAPI::addNotification(PHANDLE, "Carousel activated", CColor{0.0, 1.0, 0.0, 1.0}, 1000);
+        HyprlandAPI::addNotification(PHANDLE, "Carousel activated", Hyprgraphics::CColor{0.0, 1.0, 0.0, 1.0}, 1000);
     } else {
         m_animationEngine->stopCarouselAnimation();
-        HyprlandAPI::addNotification(PHANDLE, "Carousel deactivated", CColor{0.0, 1.0, 0.0, 1.0}, 1000);
+        HyprlandAPI::addNotification(PHANDLE, "Carousel deactivated", Hyprgraphics::CColor{0.0, 1.0, 0.0, 1.0}, 1000);
     }
 }
 
@@ -84,7 +84,7 @@ void CarouselPlugin::selectWorkspace() {
     if (!m_active || !m_initialized) return;
     
     m_animationEngine->startGrowAnimation();
-    HyprlandAPI::addNotification(PHANDLE, "Workspace selected", CColor{0.0, 1.0, 0.0, 1.0}, 1000);
+    HyprlandAPI::addNotification(PHANDLE, "Workspace selected", Hyprgraphics::CColor{0.0, 1.0, 0.0, 1.0}, 1000);
 }
 
 void CarouselPlugin::exitCarousel() {
@@ -105,14 +105,14 @@ extern "C" {
         const std::string HASH = __hyprland_api_get_hash();
         if (HASH != GIT_COMMIT_HASH) {
             HyprlandAPI::addNotification(PHANDLE, "[Carousel] Version mismatch!", 
-                                       CColor{1.0, 0.2, 0.2, 1.0}, 5000);
+                                       Hyprgraphics::CColor{1.0, 0.2, 0.2, 1.0}, 5000);
             throw std::runtime_error("API version mismatch - plugin built for different Hyprland version");
         }
         
         auto& plugin = CarouselPlugin::getInstance();
         if (!plugin.initialize()) {
             HyprlandAPI::addNotification(PHANDLE, "[Carousel] Failed to initialize!", 
-                                       CColor{1.0, 0.2, 0.2, 1.0}, 5000);
+                                       Hyprgraphics::CColor{1.0, 0.2, 0.2, 1.0}, 5000);
             return {"Hypr Carousel", "Failed to initialize", "Claude", "1.0.0"};
         }
         
@@ -138,7 +138,7 @@ extern "C" {
         });
         
         HyprlandAPI::addNotification(PHANDLE, "[Carousel] Plugin loaded successfully!", 
-                                   CColor{0.0, 1.0, 0.0, 1.0}, 3000);
+                                   Hyprgraphics::CColor{0.0, 1.0, 0.0, 1.0}, 3000);
         
         return {"Hypr Carousel", "3D workspace carousel for Hyprland", "Claude", "1.0.0"};
     }

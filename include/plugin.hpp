@@ -1,11 +1,11 @@
 #pragma once
 
-// Hyprland 0.50.0 official headers with hyprland/ prefix for Nix
+// Hyprland 0.50.1 official headers with hyprland/ prefix for Nix
 #include <hyprland/src/plugins/PluginAPI.hpp>
 #include <hyprland/src/render/OpenGL.hpp>
 #include <hyprland/src/Compositor.hpp>
 #include <hyprland/src/managers/input/InputManager.hpp>
-#include <hyprland/src/helpers/Color.hpp>
+#include <hyprgraphics/color/Color.hpp>
 
 #include <memory>
 #include <functional>
