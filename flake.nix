@@ -40,7 +40,23 @@
   };
 
   outputs = { self, nixpkgs, hyprland, hyprutils, hyprlang, hyprcursor, hyprgraphics, aquamarine, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+    let
+      # Support systems
+      supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
+      
+      # Generate packages for supported systems
+      forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f system);
+      
+    in
+    {
+      # NixOS Module
+      nixosModules = {
+        default = import ./nixos-module.nix;
+        hypr-carousel = import ./nixos-module.nix;
+      };
+
+      # Per-system outputs
+    } // flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         hyprlandPkgs = hyprland.packages.${system};
@@ -54,7 +70,7 @@
       in
       {
         packages = {
-          default = pkgs.stdenv.mkDerivation {
+          hypr-carousel = pkgs.stdenv.mkDerivation {
             pname = "hypr-carousel";
             version = "1.0.0";
 
@@ -126,6 +142,9 @@
               maintainers = [ ];
             };
           };
+          
+          # Default package
+          default = self.packages.${system}.hypr-carousel;
         };
 
         devShells.default = pkgs.mkShell {

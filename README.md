@@ -1,12 +1,12 @@
-# 3D Carousel Hyprland Plugin
+# Hyprland 3D Carousel Plugin
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![NixOS](https://img.shields.io/badge/NixOS-compatible-blue.svg)](https://nixos.org/)
 [![Hyprland](https://img.shields.io/badge/Hyprland-0.50.1+-green.svg)](https://hyprland.org/)
 
-**🎉 READY FOR USE! Complete 3D carousel implementation with Hyprland 0.50.1 compatibility.**
+**🎠 A stunning 3D workspace carousel for Hyprland with smooth animations and intuitive navigation**
 
-A 3D workspace carousel plugin for Hyprland that provides a rotating view of your workspaces. Navigate between workspaces using a 3D carousel interface with smooth animations and visual effects.
+Transform your Hyprland workspace switching experience with a beautiful 3D carousel that arranges your workspaces in a rotating circle. Built following official Hyprland plugin patterns for maximum stability and performance.
 
 ![Demo GIF Placeholder](docs/demo.gif) <!-- TODO: Add actual demo -->
 

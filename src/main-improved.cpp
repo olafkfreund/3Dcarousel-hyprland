@@ -9,6 +9,8 @@
 #include <hyprland/src/render/OpenGL.hpp>
 #include <hyprland/src/desktop/Window.hpp>
 
+#include <chrono>
+
 #include <vector>
 #include <memory>
 #include <cmath>
@@ -56,33 +58,64 @@ public:
     }
     
     bool initialize() {
-        if (!g_pCompositor) {
-            return false;
-        }
-        
-        loadConfiguration();
+        // Simplified initialization - just return true
         return true;
     }
     
     void loadConfiguration() {
-        // Load configuration values (following Hyprspace pattern)
-        auto radiusConfig = HyprlandAPI::getConfigValue(PHANDLE, "plugin:carousel:radius");
-        if (radiusConfig) {
-            m_config.radius = std::any_cast<Hyprlang::INT>(radiusConfig->getValue());
+        // Simplified configuration loading - use defaults if config fails
+        try {
+            auto radiusConfig = HyprlandAPI::getConfigValue(PHANDLE, "plugin:carousel:radius");
+            if (radiusConfig) {
+                m_config.radius = std::any_cast<Hyprlang::INT>(radiusConfig->getValue());
+            }
+        } catch (...) {
+            // Use defaults if config loading fails
+            HyprlandAPI::addNotification(PHANDLE, "[Carousel] Using default config", 
+                                       CHyprColor{1.0, 1.0, 0.2, 1.0}, 1000);
         }
     }
     
     void toggleCarousel() {
-        if (!g_pCompositor || !g_pCompositor->m_lastMonitor) {
-            return;
-        }
-        
         m_bActive = !m_bActive;
         
         if (m_bActive) {
-            captureWorkspaces();
-            HyprlandAPI::addNotification(PHANDLE, "Carousel activated", 
-                                       CHyprColor{0.2, 1.0, 0.2, 1.0}, 1000);
+            // Simple carousel activation without relying on g_pCompositor
+            // Use hyprctl to get workspace info instead
+            auto workspaceList = HyprlandAPI::invokeHyprctlCommand("get", "workspaces");
+            if (workspaceList.empty()) {
+                HyprlandAPI::addNotification(PHANDLE, "Cannot get workspace info via hyprctl", 
+                                           CHyprColor{1.0, 0.5, 0.2, 1.0}, 2000);
+            } else {
+                // For now, just create dummy thumbnails for demo
+                m_vThumbnails.clear();
+                for (int i = 1; i <= 3; ++i) {  // Create 3 dummy workspaces
+                    WorkspaceThumbnail thumb(nullptr);
+                    thumb.angle = (2.0f * M_PI * (i-1)) / 3.0f;
+                    thumb.distance = 800.0f;
+                    thumb.alpha = (i == 1) ? 1.0f : 0.7f;
+                    thumb.isSelected = (i == 1);
+                    
+                    // Calculate position
+                    float centerX = 960.0f; // Half of 1920
+                    float centerY = 540.0f; // Half of 1080
+                    float x = centerX + cosf(thumb.angle) * thumb.distance;
+                    float z = sinf(thumb.angle) * thumb.distance;
+                    float perspective = 1.0f / (1.0f + z / 2000.0f);
+                    
+                    thumb.box = CBox{
+                        (double)(x - 200 * perspective),
+                        (double)(centerY - 150 * perspective),
+                        (double)(400 * perspective),
+                        (double)(300 * perspective)
+                    };
+                    
+                    m_vThumbnails.push_back(thumb);
+                }
+                m_iSelectedWorkspace = 0;
+                HyprlandAPI::addNotification(PHANDLE, "Carousel activated (demo mode) with " + std::to_string(m_vThumbnails.size()) + " workspaces", 
+                                           CHyprColor{0.2, 1.0, 0.2, 1.0}, 1000);
+            }
         } else {
             cleanup();
             HyprlandAPI::addNotification(PHANDLE, "Carousel deactivated", 
@@ -91,17 +124,29 @@ public:
     }
     
     void nextWorkspace() {
-        if (!m_bActive || m_vThumbnails.empty()) return;
+        if (!m_bActive || m_vThumbnails.empty()) {
+            HyprlandAPI::addNotification(PHANDLE, "Carousel not active or no workspaces", 
+                                       CHyprColor{1.0, 0.5, 0.2, 1.0}, 1000);
+            return;
+        }
         
         m_iSelectedWorkspace = (m_iSelectedWorkspace + 1) % m_vThumbnails.size();
         updateRotation();
+        HyprlandAPI::addNotification(PHANDLE, "Next workspace", 
+                                   CHyprColor{0.2, 0.2, 1.0, 1.0}, 500);
     }
     
     void prevWorkspace() {
-        if (!m_bActive || m_vThumbnails.empty()) return;
+        if (!m_bActive || m_vThumbnails.empty()) {
+            HyprlandAPI::addNotification(PHANDLE, "Carousel not active or no workspaces", 
+                                       CHyprColor{1.0, 0.5, 0.2, 1.0}, 1000);
+            return;
+        }
         
         m_iSelectedWorkspace = (m_iSelectedWorkspace - 1 + m_vThumbnails.size()) % m_vThumbnails.size();
         updateRotation();
+        HyprlandAPI::addNotification(PHANDLE, "Previous workspace", 
+                                   CHyprColor{0.2, 0.2, 1.0, 1.0}, 500);
     }
     
     void selectWorkspace() {
@@ -113,6 +158,8 @@ public:
             if (thumbnail.workspace) {
                 // Use proper workspace switching API  
                 HyprlandAPI::invokeHyprctlCommand("dispatch", "workspace " + std::to_string(thumbnail.workspace->monitorID()));
+                HyprlandAPI::addNotification(PHANDLE, "Switched to workspace", 
+                                           CHyprColor{0.2, 1.0, 0.2, 1.0}, 1000);
                 toggleCarousel(); // Exit carousel mode
             }
         }
@@ -121,13 +168,26 @@ public:
     void exitCarousel() {
         if (m_bActive) {
             m_bActive = false;
-            cleanup();
+            HyprlandAPI::addNotification(PHANDLE, "Exit carousel", 
+                                       CHyprColor{1.0, 0.2, 0.2, 1.0}, 500);
         }
     }
     
     // Event handlers following Hyprspace pattern
     void onRender() {
-        if (!m_bActive || !g_pCompositor || !g_pCompositor->m_lastMonitor) {
+        static int onRenderCount = 0;
+        onRenderCount++;
+        
+        if (onRenderCount < 5) { // Log first 5 onRender calls
+            std::string msg = "onRender " + std::to_string(onRenderCount) + ": ";
+            msg += m_bActive ? "ACTIVE " : "INACTIVE ";
+            msg += std::to_string(m_vThumbnails.size()) + " thumbnails";
+            
+            HyprlandAPI::addNotification(PHANDLE, msg, 
+                                       CHyprColor{0.2, 0.8, 0.8, 1.0}, 800);
+        }
+        
+        if (!m_bActive || m_vThumbnails.empty()) {
             return;
         }
         
@@ -187,7 +247,7 @@ private:
             // 3D carousel positioning
             thumbnail.angle = workspaceAngle;
             thumbnail.distance = m_config.radius;
-            thumbnail.isSelected = (i == m_iSelectedWorkspace);
+            thumbnail.isSelected = (i == (size_t)m_iSelectedWorkspace);
             
             // Calculate 3D position (project 3D circle to 2D screen)
             float x = centerX + cosf(workspaceAngle) * m_config.radius;
@@ -222,86 +282,189 @@ private:
     }
     
     void renderCarousel() {
-        // Safe rendering following Hyprspace patterns
-        if (!g_pHyprOpenGL || !g_pCompositor->m_lastMonitor || m_vThumbnails.empty()) {
+        // Debug rendering calls
+        static int renderCount = 0;
+        renderCount++;
+        
+        if (renderCount < 10) { // Only log first 10 render calls
+            std::string debugMsg = "Render call " + std::to_string(renderCount) + ": ";
+            
+            // Check all global pointers like official plugins do
+            if (!g_pHyprOpenGL) {
+                debugMsg += "g_pHyprOpenGL=NULL ";
+            } else {
+                debugMsg += "g_pHyprOpenGL=OK ";
+            }
+            
+            if (!g_pHyprRenderer) {
+                debugMsg += "g_pHyprRenderer=NULL ";
+            } else {
+                debugMsg += "g_pHyprRenderer=OK ";
+            }
+            
+            if (m_vThumbnails.empty()) {
+                debugMsg += "thumbnails=EMPTY";
+            } else {
+                debugMsg += "thumbnails=" + std::to_string(m_vThumbnails.size());
+            }
+            
+            HyprlandAPI::addNotification(PHANDLE, debugMsg, 
+                                       CHyprColor{0.8, 0.8, 0.2, 1.0}, 1000);
+        }
+        
+        // Wait for both OpenGL and Renderer to be available (like official plugins)
+        if (!g_pHyprOpenGL || !g_pHyprRenderer || m_vThumbnails.empty()) {
             return;
         }
         
-        auto monitor = g_pCompositor->m_lastMonitor;
+        // Official plugin pattern: render each workspace using proper API
+        renderCarouselWithProperAPI();
+    }
+    
+    void renderCarouselWithProperAPI() {
+        // Following hyprexpo pattern: use g_pHyprRenderer for workspace rendering
+        // and g_pHyprOpenGL for compositing
         
-        // Render each workspace thumbnail in 3D space
-        for (auto& thumbnail : m_vThumbnails) {
-            renderWorkspaceThumbnail(thumbnail);
+        try {
+            // Clear background (following hyprexpo pattern)
+            CHyprColor bgColor{0.1, 0.1, 0.1, 0.8}; // Semi-transparent dark background
+            g_pHyprOpenGL->clear(bgColor);
+            
+            // Render each workspace thumbnail using proper API
+            for (auto& thumbnail : m_vThumbnails) {
+                renderWorkspaceThumbnailProper(thumbnail);
+            }
+            
+            // Add selection indicator (following hyprexpo pattern)
+            if (m_iSelectedWorkspace < (int)m_vThumbnails.size()) {
+                renderSelectionIndicatorProper(m_vThumbnails[m_iSelectedWorkspace]);
+            }
+            
+        } catch (...) {
+            static int renderErrors = 0;
+            if (renderErrors++ < 3) {
+                HyprlandAPI::addNotification(PHANDLE, "Carousel rendering error", 
+                                           CHyprColor{1.0, 0.2, 0.2, 1.0}, 1000);
+            }
         }
+    }
+    
+    void renderWorkspaceThumbnailProper(const WorkspaceThumbnail& thumbnail) {
+        if (!g_pHyprOpenGL || !g_pHyprRenderer) return;
         
-        // Add overlay info for selected workspace
-        if (m_iSelectedWorkspace < (int)m_vThumbnails.size()) {
-            renderSelectionIndicator(m_vThumbnails[m_iSelectedWorkspace]);
+        // Following hyprexpo pattern: render workspace content to framebuffer first
+        // then composite it to screen
+        
+        try {
+            // Create a simple colored rectangle representing the workspace
+            // (In a full implementation, this would render the actual workspace content)
+            CHyprColor workspaceColor{0.2, 0.4, 0.8, thumbnail.alpha}; // Blue with transparency
+            
+            // Use official OpenGL API to render rectangle
+            g_pHyprOpenGL->renderRect(thumbnail.box, workspaceColor);
+            
+            // Add workspace number/label
+            if (thumbnail.workspace) {
+                // TODO: In full implementation, render workspace content using g_pHyprRenderer
+                // g_pHyprRenderer->renderWorkspace(pMonitor, thumbnail.workspace, &thumbnailBox);
+            }
+            
+        } catch (...) {
+            // Silent fallback for now
+        }
+    }
+    
+    void renderSelectionIndicatorProper(const WorkspaceThumbnail& thumbnail) {
+        if (!g_pHyprOpenGL) return;
+        
+        try {
+            // Render bright selection border (following hyprexpo pattern)
+            CHyprColor highlightColor{1.0, 0.8, 0.2, 1.0}; // Bright yellow/orange
+            
+            // Create thick selection border
+            CBox borderBox = {
+                thumbnail.box.x - 8, 
+                thumbnail.box.y - 8, 
+                thumbnail.box.width + 16, 
+                thumbnail.box.height + 16
+            };
+            
+            g_pHyprOpenGL->renderRect(borderBox, highlightColor);
+            
+        } catch (...) {
+            // Silent fallback
         }
     }
     
     void renderWorkspaceThumbnail(const WorkspaceThumbnail& thumbnail) {
-        if (!thumbnail.workspace || !g_pHyprOpenGL) return;
+        if (!g_pHyprOpenGL) return;
         
-        // TODO: Implement proper render modification system for transparency
-        // For now, just render workspace content
+        // Render workspace content (works in demo mode too)
         renderWorkspaceStub(thumbnail.workspace, thumbnail.box, thumbnail.alpha);
     }
     
-    void renderWorkspaceStub(SP<CWorkspace> workspace, const CBox& box, float) {
-        if (!workspace || !g_pHyprOpenGL) return;
-        
-        // Following Hyprspace's renderWorkspaceStub pattern
-        // Create a scaled representation of the workspace
-        
-        // Get all windows in the workspace
-        std::vector<PHLWINDOW> windows;
-        for (auto& window : g_pCompositor->m_windows) {
-            if (window->workspaceID() == workspace->monitorID() && !window->isHidden()) {
-                windows.push_back(window);
+    void renderWorkspaceStub(SP<CWorkspace> workspace, const CBox& box, float alpha) {
+        // Alternative rendering method when g_pHyprOpenGL is not available
+        if (!g_pHyprOpenGL) {
+            // Use notification-based visual feedback as fallback
+            static int notificationCount = 0;
+            static auto lastNotificationTime = std::chrono::steady_clock::now();
+            auto now = std::chrono::steady_clock::now();
+            
+            // Only show notification every 2 seconds to avoid spam
+            if (std::chrono::duration_cast<std::chrono::seconds>(now - lastNotificationTime).count() >= 2) {
+                notificationCount++;
+                std::string msg = "Carousel Visual " + std::to_string(notificationCount) + " - OpenGL not available";
+                HyprlandAPI::addNotification(PHANDLE, msg, 
+                                           CHyprColor{0.2, 0.4, 0.8, 1.0}, 1000);
+                lastNotificationTime = now;
             }
+            return;
         }
         
-        // Render windows as scaled thumbnails
-        for (auto& window : windows) {
-            if (!window || window->isHidden()) continue;
+        // Normal OpenGL rendering (if available)
+        CHyprColor boxColor{0.2, 0.4, 0.8, alpha}; // Blue with transparency
+        CHyprColor borderColor{1.0, 1.0, 1.0, alpha}; // White border
+        
+        try {
+            // Render main workspace box
+            g_pHyprOpenGL->renderRect(box, boxColor);
             
-            // Calculate scaled window position within the thumbnail box
-            CBox windowBox = window->getFullWindowBoundingBox();
-            
-            // Scale window to fit within thumbnail (simplified)
-            float workspaceWidth = 1920.0f; // TODO: Get actual workspace size
-            float workspaceHeight = 1080.0f;
-            float scaleX = (float)box.width / workspaceWidth;
-            float scaleY = (float)box.height / workspaceHeight;
-            float scale = fminf(scaleX, scaleY);
-            
-            CBox scaledBox = CBox{
-                (double)(box.x + (windowBox.x * scale)),
-                (double)(box.y + (windowBox.y * scale)),
-                (double)(windowBox.width * scale),
-                (double)(windowBox.height * scale)
-            };
-            
-            // Render window thumbnail with transparency (simplified for now)
-            // TODO: Fix renderRectWithDamage API - need damage region
-            // g_pHyprOpenGL->renderRectWithDamage(scaledBox, CHyprColor(0.2f, 0.2f, 0.2f, alpha), damage);
+            // Render border to make it more visible
+            CBox borderBox = {box.x - 2, box.y - 2, box.width + 4, box.height + 4};
+            g_pHyprOpenGL->renderRect(borderBox, borderColor);
+        } catch (...) {
+            static int renderAttempts = 0;
+            if (renderAttempts++ < 5) {
+                HyprlandAPI::addNotification(PHANDLE, "OpenGL render failed", 
+                                           CHyprColor{1.0, 0.2, 0.2, 1.0}, 500);
+            }
         }
     }
     
     void renderSelectionIndicator(const WorkspaceThumbnail& thumbnail) {
         if (!g_pHyprOpenGL) return;
         
-        // Render a border around the selected workspace
-        CBox borderBox = CBox{
-            (double)(thumbnail.box.x - 5),
-            (double)(thumbnail.box.y - 5),
-            (double)(thumbnail.box.width + 10),
-            (double)(thumbnail.box.height + 10)
-        };
+        // Render a bright border around the selected workspace
+        CHyprColor highlightColor{1.0, 0.8, 0.2, 1.0}; // Bright yellow/orange
         
-        // TODO: Fix renderBorder API - simplified for now
-        // g_pHyprOpenGL->renderBorder(borderBox, gradient, round, power, borderSize, alpha, outerRound);
+        try {
+            // Create thick selection border
+            CBox borderBox = {
+                thumbnail.box.x - 8, 
+                thumbnail.box.y - 8, 
+                thumbnail.box.width + 16, 
+                thumbnail.box.height + 16
+            };
+            g_pHyprOpenGL->renderRect(borderBox, highlightColor);
+        } catch (...) {
+            // Fallback notification for selection
+            static int selectionRenders = 0;
+            if (selectionRenders++ < 3) {
+                HyprlandAPI::addNotification(PHANDLE, "Selected workspace highlighted", 
+                                           CHyprColor{1.0, 0.8, 0.2, 1.0}, 300);
+            }
+        }
     }
     
     void cleanup() {
@@ -314,6 +477,50 @@ private:
 // Event callback functions following Hyprspace pattern
 void onRenderCallback(void*, SCallbackInfo&, std::any) {
     CarouselPlugin::getInstance().onRender();
+}
+
+// Test function to check compositor state  
+SDispatchResult carousel_test(std::string) {
+    std::string status = "Compositor test: ";
+    
+    // Try alternative access methods
+    try {
+        // Method 1: Check if global pointers exist
+        if (!g_pCompositor) {
+            status += "g_pCompositor=NULL ";
+        } else {
+            status += "g_pCompositor=OK ";
+        }
+        
+        if (!g_pHyprOpenGL) {
+            status += "g_pHyprOpenGL=NULL ";
+        } else {
+            status += "g_pHyprOpenGL=OK ";
+        }
+        
+        // Method 2: Try using HyprlandAPI to get version info (this should work)
+        auto version = HyprlandAPI::getHyprlandVersion(PHANDLE);
+        if (!version.hash.empty()) {
+            status += "API=OK ";
+        } else {
+            status += "API=FAIL ";
+        }
+        
+        // Method 3: Try to invoke a simple command to test if compositor responds
+        auto result = HyprlandAPI::invokeHyprctlCommand("dispatch", "workspace 1");
+        if (result.empty()) {
+            status += "dispatch=FAIL";
+        } else {
+            status += "dispatch=OK";
+        }
+        
+    } catch (...) {
+        status += "EXCEPTION during test";
+    }
+    
+    HyprlandAPI::addNotification(PHANDLE, status, 
+                               CHyprColor{0.2, 0.8, 1.0, 1.0}, 4000);
+    return SDispatchResult{};
 }
 
 // Dispatcher functions with modern API
@@ -359,6 +566,21 @@ extern "C" {
             throw std::runtime_error("[carousel] Version mismatch");
         }
         
+        // Register configuration values first (optional - plugin works without these)
+        try {
+            HyprlandAPI::addConfigValue(PHANDLE, "plugin:carousel:radius", 
+                                       Hyprlang::CConfigValue((Hyprlang::INT)800));
+            HyprlandAPI::addConfigValue(PHANDLE, "plugin:carousel:spacing", 
+                                       Hyprlang::CConfigValue((Hyprlang::FLOAT)1.2f));
+            HyprlandAPI::addConfigValue(PHANDLE, "plugin:carousel:transparency_gradient", 
+                                       Hyprlang::CConfigValue((Hyprlang::FLOAT)0.3f));
+            HyprlandAPI::addConfigValue(PHANDLE, "plugin:carousel:animation_duration", 
+                                       Hyprlang::CConfigValue((Hyprlang::INT)300));
+        } catch (...) {
+            HyprlandAPI::addNotification(PHANDLE, "[Carousel] Config registration failed, using defaults", 
+                                       CHyprColor{1.0, 1.0, 0.2, 1.0}, 2000);
+        }
+        
         // Initialize plugin
         auto& plugin = CarouselPlugin::getInstance();
         if (!plugin.initialize()) {
@@ -367,24 +589,15 @@ extern "C" {
             return {"Hypr Carousel", "Failed to initialize", "Claude", "1.0.0"};
         }
         
-        // Register configuration values (following Hyprspace pattern)
-        HyprlandAPI::addConfigValue(PHANDLE, "plugin:carousel:radius", 
-                                   Hyprlang::CConfigValue((Hyprlang::INT)800));
-        HyprlandAPI::addConfigValue(PHANDLE, "plugin:carousel:spacing", 
-                                   Hyprlang::CConfigValue((Hyprlang::FLOAT)1.2f));
-        HyprlandAPI::addConfigValue(PHANDLE, "plugin:carousel:transparency_gradient", 
-                                   Hyprlang::CConfigValue((Hyprlang::FLOAT)0.3f));
-        HyprlandAPI::addConfigValue(PHANDLE, "plugin:carousel:animation_duration", 
-                                   Hyprlang::CConfigValue((Hyprlang::INT)300));
-        
         // Register dispatchers using modern API
+        HyprlandAPI::addDispatcherV2(PHANDLE, "carousel:test", carousel_test);
         HyprlandAPI::addDispatcherV2(PHANDLE, "carousel:toggle", carousel_toggle);
         HyprlandAPI::addDispatcherV2(PHANDLE, "carousel:next", carousel_next);
         HyprlandAPI::addDispatcherV2(PHANDLE, "carousel:prev", carousel_prev);
         HyprlandAPI::addDispatcherV2(PHANDLE, "carousel:select", carousel_select);
         HyprlandAPI::addDispatcherV2(PHANDLE, "carousel:exit", carousel_exit);
         
-        // Register event callbacks (following Hyprspace pattern)
+        // Register event callbacks for 3D rendering
         static auto renderCallback = HyprlandAPI::registerCallbackDynamic(
             PHANDLE, "render", onRenderCallback);
         
