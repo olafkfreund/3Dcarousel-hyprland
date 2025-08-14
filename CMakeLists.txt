@@ -27,12 +27,9 @@ pkg_check_modules(deps REQUIRED IMPORTED_TARGET
     xkbcommon
 )
 
-# Use specific source files to avoid duplicate main functions
+# Use improved plugin following Hyprspace patterns
 set(SRC_FILES
-    src/main.cpp
-    src/CarouselRenderer.cpp
-    src/WorkspaceManager.cpp
-    src/AnimationEngine.cpp
+    src/main-improved.cpp
 )
 add_library(hypr-carousel SHARED ${SRC_FILES})
 
