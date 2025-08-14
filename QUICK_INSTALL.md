@@ -2,13 +2,14 @@
 
 ## 🚀 Your 3D Carousel Plugin is Ready!
 
-The plugin has been successfully built and is ready for installation.
+The plugin has been successfully built with **full API compatibility** and is ready for installation.
 
 ### ✅ Plugin Status
-- **Built**: ✅ Nix build completed successfully
-- **Size**: 107KB optimized binary
+- **Built**: ✅ Nix build completed successfully with official API patterns
+- **Size**: 107KB optimized binary  
 - **Location**: `~/.local/share/hyprland/plugins/hypr-carousel.so`
-- **Version**: Compatible with Hyprland 0.50.1+
+- **Version**: Full compatibility with Hyprland 0.50.1+
+- **API**: Updated to match official hyprland-plugins specification
 
 ### 📦 Installation Steps
 
