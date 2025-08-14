@@ -82,11 +82,11 @@ public:
         if (m_bActive) {
             captureWorkspaces();
             HyprlandAPI::addNotification(PHANDLE, "Carousel activated", 
-                                       CHyprColor(Hyprgraphics::CColor(Hyprgraphics::CColor::SSRGB{0.0, 1.0, 0.0}), 1.0), 1000);
+                                       CHyprColor{0.2, 1.0, 0.2, 1.0}, 1000);
         } else {
             cleanup();
             HyprlandAPI::addNotification(PHANDLE, "Carousel deactivated", 
-                                       CHyprColor(Hyprgraphics::CColor(Hyprgraphics::CColor::SSRGB{0.0, 1.0, 0.0}), 1.0), 1000);
+                                       CHyprColor{0.2, 1.0, 0.2, 1.0}, 1000);
         }
     }
     
@@ -344,26 +344,26 @@ SDispatchResult carousel_exit(std::string) {
 
 // Plugin entry points (exact naming required by Hyprland)
 extern "C" {
-    APICALL EXPORT const char* pluginAPIVersion() {
+    APICALL EXPORT std::string PLUGIN_API_VERSION() {
         return HYPRLAND_API_VERSION;
     }
     
-    APICALL EXPORT PLUGIN_DESCRIPTION_INFO pluginInit(HANDLE handle) {
+    APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
         PHANDLE = handle;
         
-        // Version check (temporarily disabled for testing)
-        // const std::string HASH = __hyprland_api_get_hash();
-        // if (HASH != GIT_COMMIT_HASH) {
-        //     HyprlandAPI::addNotification(PHANDLE, "[Carousel] Version mismatch!", 
-        //                                CHyprColor(Hyprgraphics::CColor(Hyprgraphics::CColor::SSRGB{1.0, 0.2, 0.2}), 1.0), 5000);
-        //     throw std::runtime_error("API version mismatch - plugin built for different Hyprland version");
-        // }
+        // Version check (critical for stability)
+        const std::string HASH = __hyprland_api_get_hash();
+        if (HASH != GIT_COMMIT_HASH) {
+            HyprlandAPI::addNotification(PHANDLE, "[Carousel] Version mismatch!", 
+                                       CHyprColor{1.0, 0.2, 0.2, 1.0}, 5000);
+            throw std::runtime_error("[carousel] Version mismatch");
+        }
         
         // Initialize plugin
         auto& plugin = CarouselPlugin::getInstance();
         if (!plugin.initialize()) {
             HyprlandAPI::addNotification(PHANDLE, "[Carousel] Failed to initialize!", 
-                                       CHyprColor(Hyprgraphics::CColor(Hyprgraphics::CColor::SSRGB{1.0, 0.2, 0.2}), 1.0), 5000);
+                                       CHyprColor{1.0, 0.2, 0.2, 1.0}, 5000);
             return {"Hypr Carousel", "Failed to initialize", "Claude", "1.0.0"};
         }
         
@@ -389,12 +389,12 @@ extern "C" {
             PHANDLE, "render", onRenderCallback);
         
         HyprlandAPI::addNotification(PHANDLE, "[Carousel] Plugin loaded successfully!", 
-                                   CHyprColor(Hyprgraphics::CColor(Hyprgraphics::CColor::SSRGB{0.0, 1.0, 0.0}), 1.0), 3000);
+                                   CHyprColor{0.2, 1.0, 0.2, 1.0}, 3000);
         
         return {"Hypr Carousel", "3D workspace carousel following Hyprspace patterns", "Claude", "1.0.0"};
     }
     
-    APICALL EXPORT void pluginExit() {
+    APICALL EXPORT void PLUGIN_EXIT() {
         // Clean exit
         CarouselPlugin::getInstance().exitCarousel();
     }
