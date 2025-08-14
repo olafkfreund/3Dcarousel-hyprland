@@ -152,10 +152,10 @@ void CarouselRenderer::render() {
     glUseProgram(m_shaderProgram);
     glBindVertexArray(m_VAO);
     
-    auto monitor = g_pCompositor->m_pLastMonitor;
+    auto monitor = g_pCompositor->m_lastMonitor;
     glm::mat4 projection = glm::perspective(
         glm::radians(45.0f), 
-        (float)monitor->vecSize.x / (float)monitor->vecSize.y, 
+        16.0f / 9.0f, // TODO: Fix monitor size API for proper aspect ratio 
         0.1f, 
         2000.0f
     );
@@ -214,13 +214,13 @@ void CarouselRenderer::updateWorkspacePositions(float rotation, int selectedInde
 }
 
 void CarouselRenderer::captureWorkspaces() {
-    auto workspaces = g_pCompositor->m_vWorkspaces;
+    auto workspaces = g_pCompositor->m_workspaces;
     
     m_workspaceFrames.clear();
     m_workspaceFrames.reserve(workspaces.size());
     
     for (auto& workspace : workspaces) {
-        if (!workspace->m_bIsSpecialWorkspace && workspace->m_windows.size() > 0) {
+        if (!workspace->m_isSpecialWorkspace && workspace->getWindows() > 0) {
             WorkspaceFrame frame;
             frame.width = 1920;
             frame.height = 1080;

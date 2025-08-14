@@ -27,9 +27,14 @@ pkg_check_modules(deps REQUIRED IMPORTED_TARGET
     xkbcommon
 )
 
-# Use glob pattern like official plugins
-file(GLOB_RECURSE SRC "*.cpp")
-add_library(hypr-carousel SHARED ${SRC})
+# Use specific source files to avoid duplicate main functions
+set(SRC_FILES
+    src/main.cpp
+    src/CarouselRenderer.cpp
+    src/WorkspaceManager.cpp
+    src/AnimationEngine.cpp
+)
+add_library(hypr-carousel SHARED ${SRC_FILES})
 
 target_include_directories(hypr-carousel PRIVATE include/)
 target_link_libraries(hypr-carousel PRIVATE PkgConfig::deps)

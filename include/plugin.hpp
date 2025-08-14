@@ -5,7 +5,7 @@
 #include <hyprland/src/render/OpenGL.hpp>
 #include <hyprland/src/Compositor.hpp>
 #include <hyprland/src/managers/input/InputManager.hpp>
-#include <hyprgraphics/color/Color.hpp>
+#include <hyprland/src/helpers/Color.hpp>
 
 #include <memory>
 #include <functional>

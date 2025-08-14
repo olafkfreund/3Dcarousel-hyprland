@@ -36,11 +36,11 @@ void WorkspaceManager::selectWorkspace(int index) {
 }
 
 void WorkspaceManager::refreshWorkspaces() {
-    auto workspaces = g_pCompositor->m_vWorkspaces;
+    auto workspaces = g_pCompositor->m_workspaces;
     
     m_workspaceCount = 0;
     for (auto& workspace : workspaces) {
-        if (!workspace->m_bIsSpecialWorkspace && workspace->m_windows.size() > 0) {
+        if (!workspace->m_isSpecialWorkspace && workspace->getWindows() > 0) {
             m_workspaceCount++;
         }
     }
