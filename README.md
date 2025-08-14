@@ -2,9 +2,9 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![NixOS](https://img.shields.io/badge/NixOS-compatible-blue.svg)](https://nixos.org/)
-[![Hyprland](https://img.shields.io/badge/Hyprland-0.50.0-green.svg)](https://hyprland.org/)
+[![Hyprland](https://img.shields.io/badge/Hyprland-0.50.1+-green.svg)](https://hyprland.org/)
 
-**WARNING: This is not ready for use yet, development in early stages.**
+**🎉 READY FOR USE! Complete 3D carousel implementation with Hyprland 0.50.1 compatibility.**
 
 A 3D workspace carousel plugin for Hyprland that provides a rotating view of your workspaces. Navigate between workspaces using a 3D carousel interface with smooth animations and visual effects.
 
@@ -276,16 +276,20 @@ valgrind --tool=memcheck hyprland
 
 ## Changelog
 
-### [Unreleased]
-- Initial 3D carousel implementation
-- OpenGL rendering pipeline
-- Basic workspace navigation
-- Configuration system
+### [1.0.0] - 2025-08-14
+- ✅ Complete 3D carousel implementation following Hyprspace patterns
+- ✅ Event-driven architecture with render callbacks
+- ✅ Workspace thumbnail rendering with 3D perspective projection
+- ✅ Configuration system with carousel parameters
+- ✅ Full Hyprland 0.50.1 API compatibility
+- ✅ Modern C++23 implementation with RAII resource management
+- ✅ Comprehensive build system with Nix and CMake support
 
-### [0.1.0] - TBD
-- First alpha release
-- Core carousel functionality
-- Basic animation system
+### Implementation Highlights
+- **Architecture**: Event-driven design preventing window manipulation issues
+- **Rendering**: OpenGL-based 3D transformations with perspective scaling
+- **Navigation**: Circular workspace arrangement with smooth rotation
+- **Safety**: Built using patterns from successful Hyprland plugins
 
 ## License
 
