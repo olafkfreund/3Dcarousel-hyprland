@@ -1,0 +1,3 @@
+/home/olafkfreund/Source/3Dcarousel-hyprland/build-minimal/CMakeFiles/hypr-carousel-minimal.dir
+/home/olafkfreund/Source/3Dcarousel-hyprland/build-minimal/CMakeFiles/edit_cache.dir
+/home/olafkfreund/Source/3Dcarousel-hyprland/build-minimal/CMakeFiles/rebuild_cache.dir

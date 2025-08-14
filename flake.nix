@@ -3,9 +3,9 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # Pin to exact Hyprland 0.50.0 commit for ABI compatibility
+    # Pin to exact Hyprland 0.50.1 commit for ABI compatibility
     hyprland = {
-      url = "github:hyprwm/Hyprland/cb6589db98325705cef5dcaf92ccdf41ab21386d";
+      url = "github:hyprwm/Hyprland/4e242d086e20b32951fdc0ebcbfb4d41b5be8dcc";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-utils.url = "github:numtide/flake-utils";
@@ -32,7 +32,12 @@
             ];
 
             buildInputs = with pkgs; [
-              hyprlandPkgs.hyprland-dev
+              hyprlandPkgs.hyprland
+              
+              # Math library for 3D calculations
+              glm
+              
+              # Core dependencies
               wayland
               wayland-protocols
               libGL
@@ -87,13 +92,16 @@
             just
             
             # Hyprland development
-            hyprlandPkgs.hyprland-dev
+            hyprlandPkgs.hyprland
+            
+            # Math library for 3D calculations
+            glm
             
             # Core dependencies
             wayland
             wayland-protocols
             libGL
-            libEGL
+            libglvnd
             libxkbcommon
             pixman
             libdrm
@@ -116,7 +124,7 @@
             nix-diff
           ];
 
-          PKG_CONFIG_PATH = "${hyprlandPkgs.hyprland-dev}/lib/pkgconfig";
+          PKG_CONFIG_PATH = "${hyprlandPkgs.hyprland}/lib/pkgconfig";
           
           shellHook = ''
             echo "🚀 Hyprland 3D Carousel Plugin Development Environment"
@@ -130,7 +138,7 @@
             echo ""
             echo "📚 Development info:"
             echo "  Plugin source: $(pwd)"
-            echo "  Hyprland dev headers: ${hyprlandPkgs.hyprland-dev}"
+            echo "  Hyprland headers: ${hyprlandPkgs.hyprland}"
             echo "  PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
             echo ""
           '';
