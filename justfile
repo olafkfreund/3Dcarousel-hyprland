@@ -6,8 +6,7 @@ default:
     @echo "🚀 Hyprland 3D Carousel Plugin"
     @echo ""
     @echo "📦 Build Commands:"
-    @echo "  just build      - Build full plugin with CMake"
-    @echo "  just minimal    - Build minimal test plugin (START HERE)"
+    @echo "  just build      - Build plugin with CMake"
     @echo "  just nix-build  - Build plugin with Nix"
     @echo "  just clean      - Clean build directory"
     @echo "  just rebuild    - Clean and build"
@@ -25,8 +24,6 @@ default:
     @echo "🧪 Testing:"
     @echo "  just test       - Run development tests"
     @echo "  just debug      - Build with debug symbols"
-    @echo "  just minimal    - Build minimal test plugin"
-    @echo "  just test-load  - Test minimal plugin loading"
     @echo ""
 
 # Build the plugin using CMake
@@ -90,7 +87,7 @@ check: format lint
 install: build
     @echo "📦 Installing plugin to Hyprland..."
     mkdir -p ~/.local/share/hyprland/plugins
-    cp build/hypr-carousel.so ~/.local/share/hyprland/plugins/
+    cp build/libhypr-carousel.so ~/.local/share/hyprland/plugins/hypr-carousel.so
     @echo "✅ Plugin installed to ~/.local/share/hyprland/plugins/hypr-carousel.so"
     @echo ""
     @echo "📝 Add to your hyprland.conf:"
@@ -111,14 +108,14 @@ uninstall:
 # Run development tests
 test:
     @echo "🧪 Running development tests..."
-    @if [ -f build/hypr-carousel.so ]; then \
+    @if [ -f build/libhypr-carousel.so ]; then \
         echo "✅ Plugin builds successfully"; \
-        file build/hypr-carousel.so; \
+        file build/libhypr-carousel.so; \
         echo ""; \
-        echo "📊 Plugin size: $(du -h build/hypr-carousel.so | cut -f1)"; \
+        echo "📊 Plugin size: $(du -h build/libhypr-carousel.so | cut -f1)"; \
         echo ""; \
         echo "🔍 Plugin symbols:"; \
-        nm -D build/hypr-carousel.so | grep -E "(PLUGIN_|carousel)" || echo "No plugin symbols found"; \
+        nm -D build/libhypr-carousel.so | grep -E "(PLUGIN_|carousel)" || echo "No plugin symbols found"; \
     else \
         echo "❌ Plugin not built. Run 'just build' first"; \
         exit 1; \
@@ -153,35 +150,6 @@ package: nix-build
 dev-cycle: clean debug test
     @echo "🔄 Development cycle complete"
 
-# Build minimal test plugin
-minimal:
-    @echo "🔨 Building minimal test plugin..."
-    mkdir -p build-minimal
-    cp CMakeLists-minimal.txt build-minimal/CMakeLists.txt
-    cp -r src build-minimal/
-    cd build-minimal && cmake . -G Ninja -DCMAKE_BUILD_TYPE=Debug
-    cd build-minimal && ninja
-    @echo "✅ Minimal plugin built: build-minimal/hypr-carousel-minimal.so"
-
-# Test minimal plugin loading
-test-load:
-    @echo "🧪 Testing minimal plugin loading..."
-    @if [ -f build-minimal/hypr-carousel-minimal.so ]; then \
-        echo "✅ Plugin file exists"; \
-        echo "📊 Plugin size: $(du -h build-minimal/hypr-carousel-minimal.so | cut -f1)"; \
-        echo ""; \
-        echo "🔍 Checking exported symbols..."; \
-        nm -D build-minimal/hypr-carousel-minimal.so | grep -E "(plugin|API)" || echo "⚠️  No plugin symbols found"; \
-        echo ""; \
-        echo "🔗 Checking dependencies..."; \
-        ldd build-minimal/hypr-carousel-minimal.so | head -5; \
-        echo ""; \
-        echo "📝 To test loading: hyprctl plugin load $(pwd)/build-minimal/hypr-carousel-minimal.so"; \
-        echo "📝 To test dispatcher: hyprctl dispatch test:hello"; \
-    else \
-        echo "❌ Minimal plugin not built. Run 'just minimal' first"; \
-        exit 1; \
-    fi
 
 # Show logs from Hyprland (if running)
 logs:

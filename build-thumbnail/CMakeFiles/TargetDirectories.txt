@@ -1,9 +1,0 @@
-/home/olafkfreund/Source/3Dcarousel-hyprland/build-thumbnail/CMakeFiles/hypr-carousel.dir
-/home/olafkfreund/Source/3Dcarousel-hyprland/build-thumbnail/CMakeFiles/hypr-carousel-events.dir
-/home/olafkfreund/Source/3Dcarousel-hyprland/build-thumbnail/CMakeFiles/hypr-carousel-hook.dir
-/home/olafkfreund/Source/3Dcarousel-hyprland/build-thumbnail/CMakeFiles/edit_cache.dir
-/home/olafkfreund/Source/3Dcarousel-hyprland/build-thumbnail/CMakeFiles/rebuild_cache.dir
-/home/olafkfreund/Source/3Dcarousel-hyprland/build-thumbnail/CMakeFiles/list_install_components.dir
-/home/olafkfreund/Source/3Dcarousel-hyprland/build-thumbnail/CMakeFiles/install.dir
-/home/olafkfreund/Source/3Dcarousel-hyprland/build-thumbnail/CMakeFiles/install/local.dir
-/home/olafkfreund/Source/3Dcarousel-hyprland/build-thumbnail/CMakeFiles/install/strip.dir

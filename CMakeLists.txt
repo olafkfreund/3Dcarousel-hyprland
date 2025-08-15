@@ -1,4 +1,3 @@
-# Fixed CMakeLists.txt based on working 3D stack plugin patterns
 cmake_minimum_required(VERSION 3.16)
 
 project(hypr-carousel 
@@ -7,14 +6,11 @@ project(hypr-carousel
     LANGUAGES CXX
 )
 
-# Use C++23 like working plugin
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find dependencies using simple pattern from working plugin
 find_package(PkgConfig REQUIRED)
 
-# Only essential dependencies like the working plugin
 pkg_check_modules(deps REQUIRED IMPORTED_TARGET
     hyprland
     libdrm
@@ -22,24 +18,9 @@ pkg_check_modules(deps REQUIRED IMPORTED_TARGET
     wayland-server
 )
 
-# Source files - using working simplified version
-set(SOURCES
-    src/main.cpp
-)
+add_library(hypr-carousel SHARED src/main.cpp)
 
-# Create shared library
-add_library(hypr-carousel SHARED ${SOURCES})
-
-# Include directories
-target_include_directories(hypr-carousel PRIVATE include/)
-
-# Link libraries
 target_link_libraries(hypr-carousel PRIVATE PkgConfig::deps)
-
-# Compile options matching working plugin
 target_compile_options(hypr-carousel PRIVATE -Wall -Wextra -fPIC)
 
-# Install
-install(TARGETS hypr-carousel
-    LIBRARY DESTINATION lib
-)
+install(TARGETS hypr-carousel LIBRARY DESTINATION lib)
