@@ -1,0 +1,7 @@
+/home/olafkfreund/Source/3Dcarousel-hyprland/build-simple/CMakeFiles/hypr-carousel.dir
+/home/olafkfreund/Source/3Dcarousel-hyprland/build-simple/CMakeFiles/edit_cache.dir
+/home/olafkfreund/Source/3Dcarousel-hyprland/build-simple/CMakeFiles/rebuild_cache.dir
+/home/olafkfreund/Source/3Dcarousel-hyprland/build-simple/CMakeFiles/list_install_components.dir
+/home/olafkfreund/Source/3Dcarousel-hyprland/build-simple/CMakeFiles/install.dir
+/home/olafkfreund/Source/3Dcarousel-hyprland/build-simple/CMakeFiles/install/local.dir
+/home/olafkfreund/Source/3Dcarousel-hyprland/build-simple/CMakeFiles/install/strip.dir

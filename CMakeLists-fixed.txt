@@ -22,9 +22,9 @@ pkg_check_modules(deps REQUIRED IMPORTED_TARGET
     wayland-server
 )
 
-# Source files - using working simplified version
+# Source files - simplified structure
 set(SOURCES
-    src/main.cpp
+    src/main-simplified.cpp
 )
 
 # Create shared library

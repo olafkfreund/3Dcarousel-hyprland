@@ -111,6 +111,10 @@
               librsvg
               libjpeg
               libwebp
+              
+              # Fix missing sysprof-capture dependency
+              glib
+              sysprof
             ];
 
             configurePhase = ''
@@ -130,7 +134,7 @@
             installPhase = ''
               runHook preInstall
               mkdir -p $out/lib
-              cp build/hypr-carousel.so $out/lib/
+              cp build/libhypr-carousel.so $out/lib/hypr-carousel.so
               runHook postInstall
             '';
 
@@ -186,6 +190,10 @@
             librsvg
             libjpeg
             libwebp
+            
+            # Fix missing sysprof-capture dependency
+            glib
+            sysprof
             
             # Development tools
             gdb
