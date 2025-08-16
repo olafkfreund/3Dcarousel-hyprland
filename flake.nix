@@ -55,6 +55,12 @@
         hypr-carousel = import ./nixos-module.nix;
       };
 
+      # Home Manager Module
+      homeManagerModules = {
+        default = import ./nixos-module.nix;  # Same module works for both
+        hypr-carousel = import ./nixos-module.nix;
+      };
+
       # Per-system outputs
     } // flake-utils.lib.eachDefaultSystem (system:
       let

@@ -8,8 +8,6 @@
 
 Transform your Hyprland workspace switching experience with a beautiful 3D carousel that arranges your workspaces in a rotating circle. Built following official Hyprland plugin patterns for maximum stability and performance.
 
-![Demo GIF Placeholder](docs/demo.gif) <!-- TODO: Add actual demo -->
-
 ## Features
 
 ### Core Features
@@ -40,21 +38,186 @@ Transform your Hyprland workspace switching experience with a beautiful 3D carou
 
 ### NixOS Installation (Recommended)
 
+The plugin provides comprehensive NixOS integration with both system-wide and home-manager configurations.
+
+#### Quick Installation (NixOS Flakes)
+
 ```bash
 # Clone the repository
 git clone https://github.com/your-username/3Dcarousel-hyprland.git
 cd 3Dcarousel-hyprland
 
+# Build plugin with Nix
+nix build .#hypr-carousel
+
+# Plugin is available at: result/lib/hypr-carousel.so
+```
+
+#### System-Wide Installation (NixOS Configuration)
+
+Add to your NixOS `configuration.nix` or flake:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    hypr-carousel = {
+      url = "github:your-username/3Dcarousel-hyprland";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, hypr-carousel, ... }: {
+    nixosConfigurations.your-hostname = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        # Your existing configuration
+        ./configuration.nix
+        
+        # Enable the carousel plugin
+        hypr-carousel.nixosModules.default
+        {
+          programs.hypr-carousel = {
+            enable = true;
+            # Optional: customize configuration
+            radius = 800;
+            spacing = 1.2;
+            transparencyGradient = 0.3;
+            animationDuration = 300;
+            keybindings = {
+              toggle = "SUPER, TAB";
+              next = "SUPER, right";
+              prev = "SUPER, left";
+              select = "SUPER, RETURN";
+              exit = "SUPER, ESCAPE";
+            };
+          };
+        }
+      ];
+    };
+  };
+}
+```
+
+#### Home Manager Installation
+
+For user-specific installation with home-manager:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    hypr-carousel = {
+      url = "github:your-username/3Dcarousel-hyprland";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { nixpkgs, home-manager, hypr-carousel, ... }: {
+    homeConfigurations.your-username = home-manager.lib.homeManagerConfiguration {
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      modules = [
+        # Import the plugin module
+        hypr-carousel.homeManagerModules.default
+        
+        {
+          # Enable Hyprland
+          wayland.windowManager.hyprland = {
+            enable = true;
+            package = inputs.hyprland.packages.x86_64-linux.hyprland;
+          };
+
+          # Configure the carousel plugin
+          programs.hypr-carousel = {
+            enable = true;
+            package = hypr-carousel.packages.x86_64-linux.hypr-carousel;
+            
+            settings = {
+              radius = 800;
+              spacing = 1.2;
+              transparency_gradient = 0.3;
+              animation_duration = 300;
+              enable_depth_blur = true;
+              max_workspaces = 10;
+            };
+            
+            keybindings = {
+              toggle = "SUPER, TAB";
+              next = "SUPER, right"; 
+              prev = "SUPER, left";
+              select = "SUPER, RETURN";
+              exit = "SUPER, ESCAPE";
+            };
+          };
+        }
+      ];
+    };
+  };
+}
+```
+
+#### Manual Plugin Loading (NixOS)
+
+If you prefer manual control, build and reference the plugin directly:
+
+```nix
+{ pkgs, ... }:
+
+let
+  hypr-carousel = pkgs.callPackage (pkgs.fetchFromGitHub {
+    owner = "your-username";
+    repo = "3Dcarousel-hyprland";
+    rev = "main";  # or specific commit
+    sha256 = "..."; # nix-prefetch-url --unpack
+  }) {};
+in {
+  wayland.windowManager.hyprland = {
+    enable = true;
+    extraConfig = ''
+      # Load carousel plugin
+      plugin = ${hypr-carousel}/lib/hypr-carousel.so
+      
+      # Keybindings
+      bind = SUPER, TAB, exec, hyprctl dispatch carousel:toggle
+      bind = SUPER, right, exec, hyprctl dispatch carousel:next
+      bind = SUPER, left, exec, hyprctl dispatch carousel:prev
+      bind = SUPER, RETURN, exec, hyprctl dispatch carousel:select
+      bind = SUPER, ESCAPE, exec, hyprctl dispatch carousel:exit
+      
+      # Plugin configuration
+      plugin {
+          carousel {
+              radius = 800
+              spacing = 1.2
+              transparency_gradient = 0.3
+              animation_duration = 300
+          }
+      }
+    '';
+  };
+}
+```
+
+#### Development Setup (NixOS)
+
+For development work on NixOS:
+
+```bash
 # Enter development environment
 nix develop
 
-# Build and install
-just build
-just install
+# Available commands
+just --list
 
-# Or build with Nix directly
-nix build
-cp result/lib/hypr-carousel.so ~/.local/share/hyprland/plugins/
+# Quick development cycle
+just clean && just build && just test
+
+# Install for testing
+just install
 ```
 
 ### Traditional Build
@@ -74,6 +237,8 @@ cp hypr-carousel.so ~/.local/share/hyprland/plugins/
 ```
 
 ## Configuration
+
+### Manual Hyprland Configuration
 
 Add to your `hyprland.conf`:
 
@@ -100,6 +265,39 @@ plugin {
     }
 }
 ```
+
+### NixOS Module Configuration Options
+
+When using the NixOS module, all configuration is handled declaratively:
+
+```nix
+programs.hypr-carousel = {
+  enable = true;
+  
+  # Visual Configuration
+  radius = 800;                    # Carousel radius (400-1200 recommended)
+  spacing = 1.2;                   # Workspace spacing multiplier (0.8-2.0)
+  transparencyGradient = 0.3;      # Transparency effect strength (0.0-1.0)
+  animationDuration = 300;         # Animation duration in milliseconds
+  enableDepthBlur = true;          # Enable depth-based blur effect
+  maxWorkspaces = 10;              # Maximum workspaces to display
+  
+  # Keybinding Configuration
+  keybindings = {
+    toggle = "SUPER, TAB";         # Activate carousel
+    next = "SUPER, right";         # Navigate clockwise
+    prev = "SUPER, left";          # Navigate counter-clockwise
+    select = "SUPER, RETURN";      # Select current workspace
+    exit = "SUPER, ESCAPE";        # Exit without switching
+  };
+  
+  # Advanced Options
+  autoEnable = true;               # Automatically enable in Hyprland config
+  hyprlandPackage = null;          # Use system Hyprland package
+}
+```
+
+See [nixos-module.nix](nixos-module.nix) for complete option documentation.
 
 ## Usage
 
@@ -304,11 +502,10 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Links
 
-- **Documentation**: [docs/](docs/)
-- **API Reference**: [docs/api.md](docs/api.md)
-- **Installation Guide**: [docs/installation.md](docs/installation.md)
-- **Troubleshooting**: [docs/troubleshooting.md](docs/troubleshooting.md)
-- **Development Guide**: [DEVELOPMENT.md](DEVELOPMENT.md)
+- **Repository**: [GitHub](https://github.com/your-username/3Dcarousel-hyprland)
+- **Installation Guide**: [INSTALL.md](INSTALL.md)
+- **Example Configuration**: [hyprland-example.conf](hyprland-example.conf)
+- **NixOS Module**: [nixos-module.nix](nixos-module.nix)
 
 ---
 
